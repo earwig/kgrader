@@ -1,0 +1,12 @@
+require_relative 'lib/kgrader'
+
+task :clean do
+  cli = KGrader::CLI.new Rake.application.original_dir
+  cli.reset_jail
+end
+
+task :clobber do
+  cli = KGrader::CLI.new Rake.application.original_dir
+  cli.reset_jail
+  cli.reset_desk
+end
