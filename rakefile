@@ -1,12 +1,50 @@
 require_relative 'lib/kgrader'
 
+def get_cli
+  KGrader::CLI.new Rake.application.original_dir
+end
+
 task :clean do
-  cli = KGrader::CLI.new Rake.application.original_dir
+  cli = get_cli
+  # TODO: also purge uncommitted grades
   cli.reset_jail
 end
 
 task :clobber do
-  cli = KGrader::CLI.new Rake.application.original_dir
+  cli = get_cli
+  # TODO: confirm
   cli.reset_jail
   cli.reset_desk
+end
+
+task :list do
+  # TODO
+  puts '[list!]'
+end
+
+task :roster do
+  # TODO: [course, assignment, rosterfile]
+  puts '[installing roster!]'
+end
+
+task :grade do
+  puts ARGV.inspect
+  course = ARGV[1]
+  assignment = ARGV[2]
+
+  task course.to_sym {}
+  task assignment.to_sym {}
+
+  # TODO
+  puts "Grading #{assignment} for #{course}..."
+  puts "  - semester:"
+  puts "  - due:"
+  puts "  - fetch:"
+  puts "  - students:"
+  puts "  - regrade:"
+end
+
+task :commit do
+  # TODO: [course, assignment], semester=, students=
+  puts '[committing!]'
 end
