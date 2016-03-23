@@ -1,50 +1,56 @@
 require_relative 'lib/kgrader'
 
-def get_cli
+def cli
   KGrader::CLI.new Rake.application.original_dir
 end
 
-task :clean do
-  cli = get_cli
-  # TODO: also purge uncommitted grades
-  cli.reset_jail
+def parse_args(num, keywords)
+  args, options = KGrader::parse_args ARGV.drop(1), num, keywords do |err|
+    abort err
+  end
+  args.each { |arg| task arg.to_sym {} }
+  args + [options]
 end
 
-task :clobber do
-  cli = get_cli
-  # TODO: confirm
-  cli.reset_jail
-  cli.reset_desk
+task :default => :help do ; end
+
+task :help do
+  puts %{usage:
+- rake list
+- rake roster <course> <semester> <rosterfile>
+- rake grade  <course> <assignment> [semester=<...>] [students=<...>]
+              [due=<...>] [fetch=<yes/no>] [regrade=<yes/no>]
+- rake commit <course> <assignment> [semester=<...>] [students=<...>]
+- rake clean
+- rake clobber}
 end
 
 task :list do
-  # TODO
-  puts '[list!]'
+  cli.list
 end
 
 task :roster do
-  # TODO: [course, assignment, rosterfile]
-  puts '[installing roster!]'
+  course, semester, rosterfile = parse_args 3
+  cli.roster course, semester, rosterfile
 end
 
 task :grade do
-  puts ARGV.inspect
-  course = ARGV[1]
-  assignment = ARGV[2]
-
-  task course.to_sym {}
-  task assignment.to_sym {}
-
-  # TODO
-  puts "Grading #{assignment} for #{course}..."
-  puts "  - semester:"
-  puts "  - due:"
-  puts "  - fetch:"
-  puts "  - students:"
-  puts "  - regrade:"
+  course, assignment, options = parse_args 2,
+    { :semester => :string, :students => :array, :due => :datetime,
+      :fetch => :bool, :regrade => :bool }
+  cli.grade course, options[:semester], assignment, options
 end
 
 task :commit do
-  # TODO: [course, assignment], semester=, students=
-  puts '[committing!]'
+  course, assignment, options = parse_args 2,
+    { :semester => :string, :students => :array }
+  cli.commit course, options[:semester], assignment, options
+end
+
+task :clean do
+  cli.clean
+end
+
+task :clobber do
+  cli.clobber
 end

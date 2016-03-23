@@ -27,6 +27,10 @@ kgrader uses rake as its command-line interface.
 
 ### Setup
 
+To show all known classes, semesters, and assignments:
+
+    rake list
+
 To load a roster for a course semester:
 
     rake roster cs123 sp2016 myroster.csv
@@ -42,10 +46,6 @@ After verifying that everything looks good, push the grade reports with:
     rake commit cs123 mp1
 
 ### Housekeeping
-
-To show all known classes, semesters, and assignments:
-
-    rake list
 
 To do some basic cleanup (i.e., trash uncommitted grading attempts, or reset
 messy internal state after a bad run):
@@ -63,7 +63,7 @@ but also delete checked-out student repos and roster files -- dangerous!):
 
 To specify the semester, instead of the inferred current one:
 
-    rake grade cs123 mp1 semester=sp2016
+    rake grade cs123 mp1 semester=sp16
 
 To set a cutoff date after which commits will be ignored:
 
