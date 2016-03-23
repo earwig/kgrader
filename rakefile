@@ -4,10 +4,8 @@ def cli
   KGrader::CLI.new Rake.application.original_dir
 end
 
-def parse_args(num, keywords)
-  args, options = KGrader::parse_args ARGV.drop(1), num, keywords do |err|
-    abort err
-  end
+def parse_args(num, keywords = {})
+  args, options = KGrader::parse_args ARGV.drop(1), num, keywords
   args.each { |arg| task arg.to_sym {} }
   args + [options]
 end

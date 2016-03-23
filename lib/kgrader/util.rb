@@ -1,6 +1,10 @@
 require 'date'
 
 module KGrader
+  def self.abort(error)
+    Kernel::abort "fatal: #{error}"
+  end
+
   def self.parse_args(raw, num, keywords)
     args = []
     options = {}
@@ -9,7 +13,7 @@ module KGrader
       if arg.include? '='
         key, val = arg.split('=', 2)
         key = key.to_sym
-        yield "unknown keyword #{key}" unless keywords.include? key
+        abort "unknown keyword #{key}" unless keywords.include? key
         options[key] = case keywords[key]
         when :string
           val
@@ -25,8 +29,8 @@ module KGrader
       end
     end
 
-    yield "too few arguments" if args.size < num
-    yield "too many arguments" if args.size > num
+    abort "too few arguments" if args.size < num
+    abort "too many arguments" if args.size > num
     return args, options
   end
 end

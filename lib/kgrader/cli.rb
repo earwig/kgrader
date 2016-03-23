@@ -1,8 +1,11 @@
+require_relative 'course'
+require_relative 'filesystem'
+
 module KGrader
   class CLI
 
     def initialize(dir)
-      @dir = dir
+      @fs = Filesystem.new dir
     end
 
     def list
@@ -11,23 +14,22 @@ module KGrader
     end
 
     def roster(course, semester, rosterfile)
-      # TODO
-      puts "[installing roster: c=#{course} s=#{semester} rf=#{rosterfile}]"
+      Course.new(@fs, course).roster(semester).load rosterfile
     end
 
     def grade(course, semester, assignment, options = {})
       # TODO
-      puts "[grading c=#{course} s=#{semester} a=#{assignment}]"
-      puts "  - [students=#{options[:students].inspect}]"
-      puts "  - [due=#{options[:due].inspect}]"
-      puts "  - [fetch=#{options.fetch(:fetch, true).inspect}]"
-      puts "  - [regrade=#{options.fetch(:regrade, false).inspect}]"
+      # need to get default semester...
+      semester ||= 'DEFAULT'
+      task = Course.new(@fs, course).task semester, assignment
+      task.grade options
     end
 
     def commit(course, semester, assignment, options = {})
       # TODO
-      puts "[committing c=#{course} s=#{semester} a=#{assignment}]"
-      puts "  - [students=#{options[:students].inspect}]"
+      semester ||= 'DEFAULT'
+      task = Course.new(@fs, course).task semester, assignment
+      task.commit options
     end
 
     def clean
@@ -43,15 +45,13 @@ module KGrader
 
     private
     def reset_jail
-      jail_dir = File.join(@dir, 'jail')
-      FileUtils.rm_rf jail_dir
-      FileUtils.mkdir jail_dir
-      FileUtils.touch File.join(jail_dir, '.gitkeep')
+      FileUtils.rm_rf @fs.jail
+      FileUtils.mkdir @fs.jail
+      FileUtils.touch File.join(@fs.jail, '.gitkeep')
     end
 
     def reset_desk
-      desk_dir = File.join(@dir, 'desk')
-      FileUtils.rm_rf Dir.glob(File.join(desk_dir, '*', ''))
+      FileUtils.rm_rf Dir[File.join @fs.desk, '*', '']
     end
   end
 end
