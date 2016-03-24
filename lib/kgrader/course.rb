@@ -20,5 +20,22 @@ module KGrader
       # TODO: cache
       Task.new @fs, self, semester, assignment
     end
+
+    def rosters
+      @fs.semesters(@name).map! { |semester| roster semester }
+    end
+
+    def assignments
+      @fs.assignments @name
+    end
+
+    def current_semester
+      case @config['semesters']
+      when 'faspYY'
+        KGrader::season + DateTime.now.strftime('%y')
+      when 'faspYYYY'
+        KGrader::season + DateTime.now.strftime('%Y')
+      end
+    end
   end
 end

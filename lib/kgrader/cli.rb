@@ -9,8 +9,20 @@ module KGrader
     end
 
     def list
-      # TODO
-      puts "[list]"
+      @fs.courses.each do |name|
+        puts "course: #{name}"
+        course = Course.new(@fs, name)
+
+        puts "  rosters:"
+        course.rosters.each do |roster|
+          puts "    - #{roster.semester} (#{roster.students.size} students)"
+        end
+
+        puts "  assignments:"
+        course.assignments.each do |assignment|
+          puts "    - #{assignment}"
+        end
+      end
     end
 
     def roster(course, semester, rosterfile)
@@ -18,18 +30,15 @@ module KGrader
     end
 
     def grade(course, semester, assignment, options = {})
-      # TODO
-      # need to get default semester...
-      semester ||= 'DEFAULT'
-      task = Course.new(@fs, course).task semester, assignment
-      task.grade options
+      course = Course.new @fs, course
+      semester ||= course.current_semester
+      course.task(semester, assignment).grade options
     end
 
     def commit(course, semester, assignment, options = {})
-      # TODO
-      semester ||= 'DEFAULT'
-      task = Course.new(@fs, course).task semester, assignment
-      task.commit options
+      course = Course.new @fs, course
+      semester ||= course.current_semester
+      course.task(semester, assignment).commit options
     end
 
     def clean

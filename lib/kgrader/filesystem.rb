@@ -7,8 +7,20 @@ module KGrader
       @root = root
     end
 
+    def desk
+      File.join @root, 'desk'
+    end
+
+    def jail
+      File.join @root, 'jail'
+    end
+
+    def spec
+      File.join @root, 'spec'
+    end
+
     def course(name)
-      File.join @root, 'spec', name
+      File.join spec, name
     end
 
     def course_config(name)
@@ -16,15 +28,19 @@ module KGrader
     end
 
     def courses
-      Dir[File.join @root, 'spec', '*', ''].each { |fn| File.basename fn }
+      Dir[File.join spec, '*', ''].map! { |fn| File.basename fn }
     end
 
-    def desk
-      File.join @root, 'desk'
+    def assignments(course)
+      Dir[File.join spec, course, '*', '_config.yml'].map! do |fn|
+        File.basename File.dirname fn
+      end
     end
 
-    def jail
-      File.join @root, 'jail'
+    def semesters(course)
+      Dir[File.join desk, course, '*', '_roster.csv'].map! do |fn|
+        File.basename File.dirname fn
+      end
     end
 
     def load(path)

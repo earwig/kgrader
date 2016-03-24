@@ -33,4 +33,8 @@ module KGrader
     abort "too many arguments" if args.size > num
     return args, options
   end
+
+  def self.season
+    DateTime.now.strftime('%m').to_i <= 6 ? 'sp' : 'fa'
+  end
 end
