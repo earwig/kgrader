@@ -6,16 +6,26 @@ module KGrader
       @fs = filesystem
       @course = course
       @semester = semester
+      @students = nil
     end
 
     def load(filename)
-      # TODO
-      puts "Loading roster for #{@course.name}:#{@semester} from [#{filename}]..."
+      @students = @fs.load(filename).map! { |item| item.first }
+      FileUtils.mkdir_p File.dirname(rosterfile)
+      File.write rosterfile, @students.join("\n")
     end
 
     def students
+      @students ||= @fs.load(rosterfile).map! { |item| item.first }
+    end
+
+    def intersect(other)
       # TODO
-      ["ksmith12"]
+    end
+
+    private
+    def rosterfile
+      @fs.roster @course.name, @semester
     end
   end
 end

@@ -6,6 +6,7 @@ module KGrader
       @course = course
       @semester = semester
       @assignment = assignment
+      @roster = @course.roster @semester
     end
 
     def grade(options = {})
