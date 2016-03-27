@@ -10,9 +10,13 @@ module KGrader
     end
 
     def grade(options = {})
+      students = @roster.students
+      students &= options[:students] unless options[:students].nil?
+
       # TODO
       puts "Grading #{@course.name}:#{@semester} assignment #{@assignment}..."
       puts "- options: #{options}"
+      puts "- students: #{students.inspect}"
     end
 
     def commit(options = {})

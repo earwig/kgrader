@@ -19,10 +19,6 @@ module KGrader
       @students ||= @fs.load(rosterfile).map! { |item| item.first }
     end
 
-    def intersect(other)
-      # TODO
-    end
-
     private
     def rosterfile
       @fs.roster @course.name, @semester

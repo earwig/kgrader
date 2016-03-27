@@ -47,7 +47,10 @@ module KGrader
     end
 
     def clobber
-      # TODO: confirm
+      puts "clobbering means deleting local student repos and roster files"
+      print "are you sure? [y/N] "
+      abort "aborted" unless ['y', 'yes'].include? STDIN.gets.strip.downcase
+
       reset_jail
       reset_desk
     end
