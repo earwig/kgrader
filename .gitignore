@@ -1,4 +1,3 @@
 desk/*
 !desk/README
-jail/*
-!jail/.gitkeep
+jail

@@ -41,7 +41,7 @@ module KGrader
 
     def clean
       # TODO: also purge uncommitted grades
-      reset_jail
+      clear_jail
     end
 
     def clobber
@@ -49,8 +49,8 @@ module KGrader
       print "are you sure? [y/N] "
       abort "aborted" unless ['y', 'yes'].include? STDIN.gets.strip.downcase
 
-      reset_jail
-      reset_desk
+      clear_jail
+      clear_desk
     end
 
     private
@@ -69,13 +69,11 @@ module KGrader
       end
     end
 
-    def reset_jail
+    def clear_jail
       FileUtils.rm_rf @fs.jail
-      FileUtils.mkdir @fs.jail
-      FileUtils.touch File.join(@fs.jail, '.gitkeep')
     end
 
-    def reset_desk
+    def clear_desk
       FileUtils.rm_rf Dir[File.join @fs.desk, '*', '']
     end
   end
