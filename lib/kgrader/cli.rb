@@ -26,17 +26,19 @@ module KGrader
     end
 
     def roster(course, semester, rosterfile)
-      Course.new(@fs, course).roster(semester).load rosterfile
+      course = fetch_course course
+      semester ||= course.current_semester
+      course.roster(semester).load rosterfile
     end
 
     def grade(course, semester, assignment, options = {})
-      course = Course.new @fs, course
+      course = fetch_course course
       semester ||= course.current_semester
       course.task(semester, assignment).grade options
     end
 
     def commit(course, semester, assignment, options = {})
-      course = Course.new @fs, course
+      course = fetch_course course
       semester ||= course.current_semester
       course.task(semester, assignment).commit options
     end
@@ -56,6 +58,12 @@ module KGrader
     end
 
     private
+    def fetch_course(course)
+      Course.new(@fs, course)
+    rescue FilesystemError
+      KGrader::die "unknown course"
+    end
+
     def reset_jail
       FileUtils.rm_rf @fs.jail
       FileUtils.mkdir @fs.jail

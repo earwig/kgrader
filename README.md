@@ -31,9 +31,13 @@ To show all known classes, semesters, and assignments:
 
     rake list
 
-To load a roster for a course semester:
+To load a roster for a specific semester:
 
-    rake roster cs123 sp2016 myroster.csv
+    rake roster cs123 myroster.csv semester=sp16
+
+To load a roster for the current semester:
+
+    rake roster cs123 myroster.csv
 
 ### Grading
 
@@ -83,4 +87,5 @@ repo has changed since the last run. To forcibly regrade:
 
     rake grade cs123 mp1 regrade=yes
 
-You can combine these arguments in any meaningful way.
+You can combine these arguments in any meaningful way. `semester` is available
+for `roster` and `commit`, and and `students` is available for `commit`.

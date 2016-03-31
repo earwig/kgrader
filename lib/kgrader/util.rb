@@ -1,7 +1,7 @@
 require 'date'
 
 module KGrader
-  def self.abort(error)
+  def self.die(error)
     Kernel::abort "fatal: #{error}"
   end
 
@@ -13,7 +13,7 @@ module KGrader
       if arg.include? '='
         key, val = arg.split('=', 2)
         key = key.to_sym
-        abort "unknown keyword #{key}" unless keywords.include? key
+        die "unknown keyword #{key}" unless keywords.include? key
         options[key] = case keywords[key]
         when :string
           val
@@ -29,8 +29,8 @@ module KGrader
       end
     end
 
-    abort "too few arguments" if args.size < num
-    abort "too many arguments" if args.size > num
+    die "too few arguments" if args.size < num
+    die "too many arguments" if args.size > num
     return args, options
   end
 

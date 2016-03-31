@@ -15,7 +15,7 @@ task :default => :help do ; end
 task :help do
   puts %{usage:
 - rake list
-- rake roster <course> <semester> <rosterfile>
+- rake roster <course> <rosterfile> [semester=<...>]
 - rake grade  <course> <assignment> [semester=<...>] [students=<...>]
               [due=<...>] [fetch=<yes/no>] [regrade=<yes/no>]
 - rake commit <course> <assignment> [semester=<...>] [students=<...>]
@@ -28,8 +28,8 @@ task :list do
 end
 
 task :roster do
-  course, semester, rosterfile = parse_args 3
-  cli.roster course, semester, rosterfile
+  course, rosterfile, options = parse_args 2, { :semester => :string }
+  cli.roster course, options[:semester], rosterfile
 end
 
 task :grade do

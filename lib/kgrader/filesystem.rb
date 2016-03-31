@@ -51,7 +51,11 @@ module KGrader
         YAML.load File.read(path)
       when '.csv'
         File.read(path).split("\n").map! { |line| line.split "," }
+      else
+        raise FilesystemError, "unknown file type"
       end
+    rescue SystemCallError  # Errno::ENOENT, etc.
+      raise FilesystemError, "can't read file"
     end
   end
 end
