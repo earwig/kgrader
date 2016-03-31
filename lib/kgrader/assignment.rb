@@ -11,5 +11,9 @@ module KGrader
     rescue FilesystemError
       raise AssignmentError, "unknown assignment: #{name}"
     end
+
+    def id
+      @config['id'] || @name
+    end
   end
 end

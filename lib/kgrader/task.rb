@@ -19,11 +19,17 @@ module KGrader
       regrade = options.fetch(:regrade, false)
 
       # TODO
-      puts "Grading #{@course.name}:#{@semester} assignment #{@assignment.name}..."
-      puts "- students: #{students.inspect}"
-      puts "- due:      #{due}"
-      puts "- fetch:    #{fetch}"
-      puts "- regrade:  #{regrade}"
+      puts "[grading]"
+      puts "course     => #{@course.name}"
+      puts "semester   => #{@semester}"
+      puts "assignment => #{@assignment.name}"
+      puts "students   => #{students.join ', '}"
+      puts "due        => #{due}"
+      puts "fetch      => #{fetch}"
+      puts "regrade    => #{regrade}"
+      puts
+
+      fetch_students students if fetch
     end
 
     def commit(options = {})
@@ -31,8 +37,18 @@ module KGrader
       students &= options[:students] unless options[:students].nil?
 
       # TODO
-      puts "Committing #{@course.name}:#{@semester} assignment #{@assignment.name}..."
-      puts "- students: #{students.inspect}"
+      puts "[committing]"
+      puts "course     => #{@course.name}"
+      puts "semester   => #{@semester}"
+      puts "assignment => #{@assignment.name}"
+      puts "students   => #{students.join ', '}"
+    end
+
+    private
+    def fetch_students(students)
+      students.each do |student|
+        @course.backend.fetch @semester, @assignment.id, student
+      end
     end
   end
 end

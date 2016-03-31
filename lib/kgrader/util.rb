@@ -33,6 +33,15 @@ module KGrader
     return args, options
   end
 
+  def self.backend(type)
+    case type
+    when 'svn'
+      Backend::SVN
+    else
+      raise ConfigError, "unknown backend: #{type}"
+    end
+  end
+
   def self.current_semester(format)
     season = Time.now.strftime('%m').to_i <= 6 ? 'sp' : 'fa'
     case format

@@ -1,12 +1,14 @@
 module KGrader
   class Course
-    attr_reader :name
+    attr_reader :name, :backend
 
     def initialize(filesystem, name)
       @fs = filesystem
       @name = name
 
       @config = @fs.load @fs.course_config(@name)
+      type = @config['backend']
+      @backend = KGrader::backend(type).new self, @config[type]
       @rosters = {}
       @assignments = {}
     rescue FilesystemError
