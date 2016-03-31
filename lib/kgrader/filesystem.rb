@@ -52,10 +52,10 @@ module KGrader
       when '.csv'
         File.read(path).split("\n").map! { |line| line.split "," }
       else
-        raise FilesystemError, "unknown file type"
+        raise FilesystemError, "unknown file type: #{path}"
       end
     rescue SystemCallError  # Errno::ENOENT, etc.
-      raise FilesystemError, "can't read file"
+      raise FilesystemError, "can't read file: #{path}"
     end
   end
 end

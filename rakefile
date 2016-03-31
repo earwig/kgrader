@@ -1,13 +1,21 @@
 require_relative 'lib/kgrader'
 
-def cli
-  KGrader::CLI.new Rake.application.original_dir
+def die(error)
+  abort "fatal: [#{error.class}] #{error}"
+end
+
+def run
+  yield KGrader::CLI.new Rake.application.original_dir
+rescue KGrader::KGraderError => err
+  die err
 end
 
 def parse_args(num, keywords = {})
   args, options = KGrader::parse_args ARGV.drop(1), num, keywords
   args.each { |arg| task arg.to_sym {} }
   args + [options]
+rescue KGrader::KGraderError => err
+  die err
 end
 
 task :default => :help do ; end
@@ -24,31 +32,31 @@ task :help do
 end
 
 task :list do
-  cli.list
+  run { |cli| cli.list }
 end
 
 task :roster do
   course, rosterfile, options = parse_args 2, { :semester => :string }
-  cli.roster course, options[:semester], rosterfile
+  run { |cli| cli.roster course, options[:semester], rosterfile }
 end
 
 task :grade do
   course, assignment, options = parse_args 2,
-    { :semester => :string, :students => :array, :due => :datetime,
+    { :semester => :string, :students => :array, :due => :time,
       :fetch => :bool, :regrade => :bool }
-  cli.grade course, options[:semester], assignment, options
+  run { |cli| cli.grade course, options[:semester], assignment, options }
 end
 
 task :commit do
   course, assignment, options = parse_args 2,
     { :semester => :string, :students => :array }
-  cli.commit course, options[:semester], assignment, options
+  run { |cli| cli.commit course, options[:semester], assignment, options }
 end
 
 task :clean do
-  cli.clean
+  run { |cli| cli.clean }
 end
 
 task :clobber do
-  cli.clobber
+  run { |cli| cli.clobber }
 end

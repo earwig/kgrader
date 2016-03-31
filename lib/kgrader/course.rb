@@ -11,6 +11,8 @@ module KGrader
 
       @config = @fs.load @fs.course_config(@name)
       @rosters = {}
+    rescue FilesystemError
+      raise CourseError, "unknown or invalid course: #{name}"
     end
 
     def roster(semester)
@@ -30,12 +32,7 @@ module KGrader
     end
 
     def current_semester
-      case @config['semesters']
-      when 'faspYY'
-        KGrader::season + DateTime.now.strftime('%y')
-      when 'faspYYYY'
-        KGrader::season + DateTime.now.strftime('%Y')
-      end
+      KGrader::current_semester @config['semesters']
     end
   end
 end

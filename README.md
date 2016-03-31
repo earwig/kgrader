@@ -31,7 +31,8 @@ To show all known classes, semesters, and assignments:
 
     rake list
 
-To load a roster for a specific semester:
+To load a roster (a newline-delimited list of student identifiers) for a
+specific semester:
 
     rake roster cs123 myroster.csv semester=sp16
 
