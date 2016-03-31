@@ -5,7 +5,8 @@ module KGrader
       @fs = filesystem
       @course = course
       @semester = semester
-      @assignment = assignment
+
+      @assignment = @course.assignment assignment
       @students = @course.roster(@semester).students
     end
 
@@ -18,7 +19,7 @@ module KGrader
       regrade = options.fetch(:regrade, false)
 
       # TODO
-      puts "Grading #{@course.name}:#{@semester} assignment #{@assignment}..."
+      puts "Grading #{@course.name}:#{@semester} assignment #{@assignment.name}..."
       puts "- students: #{students.inspect}"
       puts "- due:      #{due}"
       puts "- fetch:    #{fetch}"
@@ -30,7 +31,7 @@ module KGrader
       students &= options[:students] unless options[:students].nil?
 
       # TODO
-      puts "Committing #{@course.name}:#{@semester} assignment #{@assignment}..."
+      puts "Committing #{@course.name}:#{@semester} assignment #{@assignment.name}..."
       puts "- students: #{students.inspect}"
     end
   end

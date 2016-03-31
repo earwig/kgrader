@@ -1,6 +1,3 @@
-require_relative 'course'
-require_relative 'filesystem'
-
 module KGrader
   class CLI
 
@@ -65,7 +62,7 @@ module KGrader
 
       puts "#{pad}assignments:"
       course.assignments.each do |assignment|
-        puts "#{pad}  - #{assignment}"
+        puts "#{pad}  - #{assignment.name}"
       end
     end
 

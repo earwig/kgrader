@@ -19,6 +19,8 @@ module KGrader
       File.join @root, 'spec'
     end
 
+    # -------------------------------------------------------------------------
+
     def course(name)
       File.join spec, name
     end
@@ -27,23 +29,29 @@ module KGrader
       File.join course(name), '_config.yml'
     end
 
-    def roster(course_name, semester)
-      File.join desk, course_name, semester, '_roster.csv'
+    def assignment(courseid, name)
+      File.join course(courseid), name, '_config.yml'
     end
+
+    def roster(courseid, semester)
+      File.join desk, courseid, semester, '_roster.csv'
+    end
+
+    # -------------------------------------------------------------------------
 
     def courses
       Dir[File.join spec, '*', ''].map! { |fn| File.basename fn }
     end
 
-    def assignments(course_name)
-      Dir[File.join course(course_name), '*', '_config.yml'].map! do |fn|
-        File.basename File.dirname fn
-      end
+    def assignments(courseid)
+      Dir[assignment courseid '*'].map! { |fn| File.basename File.dirname fn }
     end
 
-    def semesters(course_name)
-      Dir[roster course_name, '*'].map! { |fn| File.basename File.dirname fn }
+    def semesters(courseid)
+      Dir[roster courseid, '*'].map! { |fn| File.basename File.dirname fn }
     end
+
+    # -------------------------------------------------------------------------
 
     def load(path)
       case File.extname path

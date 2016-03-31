@@ -1,6 +1,3 @@
-require_relative 'roster'
-require_relative 'task'
-
 module KGrader
   class Course
     attr_reader :name
@@ -11,12 +8,17 @@ module KGrader
 
       @config = @fs.load @fs.course_config(@name)
       @rosters = {}
+      @assignments = {}
     rescue FilesystemError
       raise CourseError, "unknown or invalid course: #{name}"
     end
 
     def roster(semester)
       @rosters[semester] ||= Roster.new @fs, self, semester
+    end
+
+    def assignment(name)
+      @assignments[name] ||= Assignment.new @fs, self, name
     end
 
     def task(semester, assignment)
@@ -28,7 +30,7 @@ module KGrader
     end
 
     def assignments
-      @fs.assignments @name
+      @fs.assignments(@name).map! { |name| assignment name }
     end
 
     def current_semester

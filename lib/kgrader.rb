@@ -1,3 +1,4 @@
+require_relative 'kgrader/assignment'
 require_relative 'kgrader/cli'
 require_relative 'kgrader/course'
 require_relative 'kgrader/errors'
