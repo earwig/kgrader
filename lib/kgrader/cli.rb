@@ -8,19 +8,15 @@ module KGrader
       @fs = Filesystem.new dir
     end
 
-    def list
-      @fs.courses.each do |name|
-        puts "course: #{name}"
-        course = Course.new(@fs, name)
-
-        puts "  rosters:"
-        course.rosters.each do |roster|
-          puts "    - #{roster.semester} (#{roster.students.size} students)"
-        end
-
-        puts "  assignments:"
-        course.assignments.each do |assignment|
-          puts "    - #{assignment}"
+    def list(course, semester)
+      if semester
+        puts Course.new(@fs, course).roster(semester).students
+      elsif course
+        list_course course, 0
+      else
+        @fs.courses.each do |name|
+          puts "course: #{name}"
+          list_course name, 1
         end
       end
     end
@@ -58,6 +54,21 @@ module KGrader
     end
 
     private
+    def list_course(name, indent = 0)
+      course = Course.new(@fs, name)
+      pad = '  ' * indent
+
+      puts "#{pad}rosters:"
+      course.rosters.each do |roster|
+        puts "#{pad}  - #{roster.semester} (#{roster.students.size} students)"
+      end
+
+      puts "#{pad}assignments:"
+      course.assignments.each do |assignment|
+        puts "#{pad}  - #{assignment}"
+      end
+    end
+
     def reset_jail
       FileUtils.rm_rf @fs.jail
       FileUtils.mkdir @fs.jail

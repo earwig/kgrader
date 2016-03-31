@@ -1,7 +1,7 @@
 require 'time'
 
 module KGrader
-  def self.parse_args(raw, num, keywords)
+  def self.parse_args(raw, range, keywords)
     args = []
     options = {}
 
@@ -27,8 +27,9 @@ module KGrader
       end
     end
 
-    raise ArgumentError, "too few arguments" if args.size < num
-    raise ArgumentError, "too many arguments" if args.size > num
+    raise ArgumentError, "too few arguments" if args.size < range.begin
+    raise ArgumentError, "too many arguments" if args.size > range.end
+    args[range.end - 1] = nil unless args.size == range.end
     return args, options
   end
 

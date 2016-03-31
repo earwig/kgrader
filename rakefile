@@ -12,7 +12,7 @@ end
 
 def parse_args(num, keywords = {})
   args, options = KGrader::parse_args ARGV.drop(1), num, keywords
-  args.each { |arg| task arg.to_sym {} }
+  args.each { |arg| task arg.to_sym {} unless arg.nil? }
   args + [options]
 rescue KGrader::KGraderError => err
   die err
@@ -22,8 +22,8 @@ task :default => :help do ; end
 
 task :help do
   puts %{usage:
-- rake list
-- rake roster <course> <rosterfile> [semester=<...>]
+- rake list   [<course>] [<semester>]
+- rake roster <course> <rosterfile> [<semester>]
 - rake grade  <course> <assignment> [semester=<...>] [students=<...>]
               [due=<...>] [fetch=<yes/no>] [regrade=<yes/no>]
 - rake commit <course> <assignment> [semester=<...>] [students=<...>]
@@ -32,23 +32,24 @@ task :help do
 end
 
 task :list do
-  run { |cli| cli.list }
+  course, semester = parse_args 0..2
+  run { |cli| cli.list course, semester }
 end
 
 task :roster do
-  course, rosterfile, options = parse_args 2, { :semester => :string }
-  run { |cli| cli.roster course, options[:semester], rosterfile }
+  course, rosterfile, semester = parse_args 2..3
+  run { |cli| cli.roster course, semester, rosterfile }
 end
 
 task :grade do
-  course, assignment, options = parse_args 2,
+  course, assignment, options = parse_args 2..2,
     { :semester => :string, :students => :array, :due => :time,
       :fetch => :bool, :regrade => :bool }
   run { |cli| cli.grade course, options[:semester], assignment, options }
 end
 
 task :commit do
-  course, assignment, options = parse_args 2,
+  course, assignment, options = parse_args 2..2,
     { :semester => :string, :students => :array }
   run { |cli| cli.commit course, options[:semester], assignment, options }
 end
