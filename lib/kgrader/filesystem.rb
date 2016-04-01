@@ -1,3 +1,4 @@
+require 'json'
 require 'yaml'
 
 module KGrader
@@ -37,6 +38,10 @@ module KGrader
       File.join desk, courseid, semester, '_roster.csv'
     end
 
+    def submission(courseid, semester, assignment, student)
+      File.join desk, courseid, semester, assignment, student
+    end
+
     # -------------------------------------------------------------------------
 
     def courses
@@ -44,7 +49,7 @@ module KGrader
     end
 
     def assignments(courseid)
-      Dir[assignment courseid '*'].map! { |fn| File.basename File.dirname fn }
+      Dir[assignment courseid, '*'].map! { |fn| File.basename File.dirname fn }
     end
 
     def semesters(courseid)
@@ -55,6 +60,10 @@ module KGrader
 
     def load(path)
       case File.extname path
+      when '.txt'
+        File.read path
+      when '.json'
+        JSON.parse File.read(path)
       when '.yml', '.yaml'
         YAML.load File.read(path)
       when '.csv'

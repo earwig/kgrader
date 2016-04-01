@@ -2,52 +2,62 @@ module KGrader
   class Task
 
     def initialize(filesystem, course, semester, assignment)
-      @fs = filesystem
-      @course = course
-      @semester = semester
+      @fs         = filesystem
+      @course     = course
+      @semester   = semester
 
       @assignment = @course.assignment assignment
-      @students = @course.roster(@semester).students
+      @students   = @course.roster(@semester).students
     end
 
     def grade(options = {})
-      students = @students
-      students &= options[:students] unless options[:students].nil?
-
+      submissions = get_submissions options[:students]
       due = options.fetch(:due, Time.now)
       fetch = options.fetch(:fetch, true)
       regrade = options.fetch(:regrade, false)
 
-      # TODO
-      puts "[grading]"
-      puts "course     => #{@course.name}"
-      puts "semester   => #{@semester}"
-      puts "assignment => #{@assignment.name}"
-      puts "students   => #{students.join ', '}"
-      puts "due        => #{due}"
-      puts "fetch      => #{fetch}"
-      puts "regrade    => #{regrade}"
-      puts
+      count = submissions.count
+      puts "[grading #{count} student#{'s' if count != 1}]"
 
-      fetch_students students if fetch
+      submissions.each do |sub|
+        unless sub.exists?
+          puts "[init #{sub.student}]"
+          sub.create
+        end
+      end
+
+      if fetch
+        submissions.each do |sub|
+          puts "[fetch #{sub.student}]"
+          sub.fetch due
+        end
+      end
+
+      submissions.each do |sub|
+        sub.status = :ungraded if regrade
+        if sub.status == :ungraded
+          puts "[grade #{sub.student}]"
+          sub.grade
+        end
+      end
     end
 
     def commit(options = {})
-      students = @students
-      students &= options[:students] unless options[:students].nil?
+      submissions = get_submissions options[:students]
 
       # TODO
       puts "[committing]"
       puts "course     => #{@course.name}"
       puts "semester   => #{@semester}"
       puts "assignment => #{@assignment.name}"
-      puts "students   => #{students.join ', '}"
+      puts "students   => #{submissions.map { |sub| sub.student }.join ', '}"
     end
 
     private
-    def fetch_students(students)
-      students.each do |student|
-        @course.backend.fetch @semester, @assignment.id, student
+    def get_submissions(students)
+      students.nil? ? (students = @students) : (students &= @students)
+      students.map do |student|
+        Submission.new @fs, @course, @semester, @assignment, student
       end
     end
   end

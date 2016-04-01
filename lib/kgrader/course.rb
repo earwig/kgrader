@@ -8,7 +8,7 @@ module KGrader
 
       @config = @fs.load @fs.course_config(@name)
       type = @config['backend']
-      @backend = KGrader::backend(type).new self, @config[type]
+      @backend = KGrader::backend(type).new @fs, self, @config[type]
       @rosters = {}
       @assignments = {}
     rescue FilesystemError
