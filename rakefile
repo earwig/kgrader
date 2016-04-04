@@ -45,13 +45,15 @@ task :grade do
   course, assignment, options = parse_args 2..2,
     { :semester => :string, :students => :array, :due => :time,
       :fetch => :bool, :regrade => :bool }
-  run { |cli| cli.grade course, options[:semester], assignment, options }
+  semester, students = options[:semester], options[:students]
+  run { |cli| cli.grade course, semester, assignment, students, options }
 end
 
 task :commit do
   course, assignment, options = parse_args 2..2,
     { :semester => :string, :students => :array }
-  run { |cli| cli.commit course, options[:semester], assignment, options }
+  semester, students = options[:semester], options[:students]
+  run { |cli| cli.commit course, semester, assignment, students }
 end
 
 task :clean do

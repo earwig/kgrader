@@ -10,7 +10,7 @@ module KGrader
     end
 
     def load(filename)
-      @students = @fs.load(filename).map! { |item| item.first }
+      @students = @fs.load(filename).map! &:first
       FileUtils.mkdir_p File.dirname(rosterfile)
       File.write rosterfile, @students.join("\n")
     rescue FilesystemError => err
@@ -18,7 +18,7 @@ module KGrader
     end
 
     def students
-      @students ||= @fs.load(rosterfile).map! { |item| item.first }
+      @students ||= @fs.load(rosterfile).map! &:first
     rescue FilesystemError
       raise RosterError, "unknown semester: #{semester}"
     end

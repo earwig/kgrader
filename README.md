@@ -10,6 +10,13 @@ It is written in Ruby.
 Installation
 ------------
 
+kgrader was developed using Ruby 2.2, though it should work with any recent
+version of Ruby.
+
+Install dependencies with gem:
+
+    gem install ruby-progressbar
+
 Download kgrader over git:
 
     git clone https://github.com/earwig/kgrader.git kgrader

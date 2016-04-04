@@ -29,6 +29,7 @@ module KGrader
     def create
       FileUtils.mkdir_p @root
       self.status = :init
+      nil
     end
 
     def fetch(due)
@@ -43,20 +44,48 @@ module KGrader
         rewind due
         self.status = revision == oldrev ? :graded : :ungraded
       end
+      nil
     end
 
     def grade
-      # TODO
+      # TODO:
+      # self.status = :ungraded
+      # [grade the stuff]
+      # [save report to gradefile]
+      # FileUtils.touch pendingfile
       # self.status = :graded
+      # return grade summary string
+
+      sleep rand / 2
+      '100%'
+    end
+
+    def commit
+      # TODO:
+      # if status == :graded && File.exists? pendingfile
+      #   [copy gradefile to repo and commit]
+      #   FileUtils.rm pendingfile
+      # end
+
+      sleep rand / 2
+      nil
     end
 
     private
+    def repo
+      File.join @root, "repo"
+    end
+
     def statusfile
       File.join @root, "status.txt"
     end
 
-    def repo
-      File.join @root, "repo"
+    def gradefile
+      File.join @root, "grade.txt"
+    end
+
+    def pendingfile
+      File.join @root, "pending"
     end
 
     def revision

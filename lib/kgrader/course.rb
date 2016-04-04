@@ -23,8 +23,8 @@ module KGrader
       @assignments[name] ||= Assignment.new @fs, self, name
     end
 
-    def task(semester, assignment)
-      Task.new @fs, self, semester, assignment
+    def task(semester, assignment, students = nil)
+      Task.new @fs, self, semester, assignment, students
     end
 
     def rosters

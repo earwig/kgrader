@@ -24,21 +24,21 @@ module KGrader
       course.roster(semester).load rosterfile
     end
 
-    def grade(course, semester, assignment, options = {})
+    def grade(course, semester, assignment, students = nil, options = {})
       course = Course.new(@fs, course)
       semester ||= course.current_semester
-      course.task(semester, assignment).grade options
+      course.task(semester, assignment, students).grade options
     end
 
-    def commit(course, semester, assignment, options = {})
+    def commit(course, semester, assignment, students = nil)
       course = Course.new(@fs, course)
       semester ||= course.current_semester
-      course.task(semester, assignment).commit options
+      course.task(semester, assignment, students).commit
     end
 
     def clean
-      # TODO: also purge uncommitted grades
       clear_jail
+      # TODO: also purge uncommitted grades: set all graded to ungraded and delete all pending files
     end
 
     def clobber
