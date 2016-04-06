@@ -73,19 +73,19 @@ module KGrader
 
     private
     def repo
-      File.join @root, "repo"
+      File.join @root, 'repo'
     end
 
     def statusfile
-      File.join @root, "status.txt"
+      File.join @root, 'status.txt'
     end
 
     def gradefile
-      File.join @root, "grade.txt"
+      File.join @root, 'grade.txt'
     end
 
     def pendingfile
-      File.join @root, "pending"
+      File.join @root, 'pending'
     end
 
     def revision

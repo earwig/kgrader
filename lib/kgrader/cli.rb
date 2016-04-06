@@ -38,7 +38,7 @@ module KGrader
 
     def clean
       clear_jail
-      # TODO: also purge uncommitted grades: set all graded to ungraded and delete all pending files
+      clean_desk
     end
 
     def clobber
@@ -72,6 +72,13 @@ module KGrader
 
     def clear_desk
       FileUtils.rm_rf Dir[File.join @fs.desk, '*', '']
+    end
+
+    def clean_desk
+      Dir[File.join @fs.desk, '*', '*', '*', '*', 'status.txt'].each do |fn|
+        File.write fn, "ungraded" if File.read(fn) == "graded"
+      end
+      FileUtils.rm_rf Dir[File.join @fs.desk, '*', '*', '*', '*', 'pending']
     end
   end
 end
