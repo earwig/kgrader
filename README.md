@@ -15,7 +15,7 @@ version of Ruby.
 
 Install dependencies with gem:
 
-    gem install ruby-progressbar
+    gem install nokogiri ruby-progressbar
 
 Download kgrader over git:
 

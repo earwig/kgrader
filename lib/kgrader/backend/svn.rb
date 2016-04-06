@@ -1,3 +1,4 @@
+require 'nokogiri'
 require 'open3'
 
 module KGrader::Backend
@@ -10,8 +11,8 @@ module KGrader::Backend
     end
 
     def revision(repo)
-      # TODO
-      -1
+      xml = Nokogiri::XML run('log', '--xml', '-l', '1', repo).first
+      xml.css('logentry').attr('revision').value.to_i
     end
 
     def clone(repo, semester, assignment, student)
@@ -19,8 +20,10 @@ module KGrader::Backend
       run 'checkout', '--ignore-externals', url, repo
     end
 
-    def update(repo)
-      run 'update', '--ignore-externals', '--accept', 'tf', repo
+    def update(repo, revision = nil)
+      args = 'update', '--ignore-externals', '--accept', 'tf'
+      args.push "-r#{revision}" unless revision.nil?
+      run *args, repo
     end
 
     private
