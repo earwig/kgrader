@@ -14,9 +14,15 @@ module KGrader
   class CourseError < KGraderError
   end
 
+  class RosterError < KGraderError
+  end
+
   class AssignmentError < KGraderError
   end
 
-  class RosterError < KGraderError
+  class TaskError < KGraderError
+  end
+
+  class SubmissionError < KGraderError
   end
 end

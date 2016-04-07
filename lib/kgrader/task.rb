@@ -16,6 +16,10 @@ module KGrader
       fetch = options.fetch(:fetch, true)
       regrade = options.fetch(:regrade, false)
 
+      if options.include?(:due) && !fetch
+        raise TaskError, "can't set a new due date without fetching"
+      end
+
       subtask 'setup' do |sub|
         sub.create unless sub.exists?
       end

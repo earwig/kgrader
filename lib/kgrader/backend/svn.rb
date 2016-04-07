@@ -26,6 +26,18 @@ module KGrader::Backend
       run *args, repo
     end
 
+    def log(repo)
+      xml = Nokogiri::XML run('log', '--xml', repo).first
+      xml.css('logentry').map do |elem|
+        { :rev  => elem.attr('revision').to_i,
+          :date => Time.parse(elem.css('date').text) }
+      end
+    end
+
+    def commit(repo, message, paths = nil)
+      # TODO
+    end
+
     private
     def run(*cmd)
       Open3.capture2e('svn', *cmd)

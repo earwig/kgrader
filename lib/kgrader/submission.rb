@@ -41,8 +41,8 @@ module KGrader
         oldrev = revision if status == :graded
         self.status = :fetching
         @course.backend.update repo
-        rewind due
-        self.status = revision == oldrev ? :graded : :ungraded
+        newrev = rewind due
+        self.status = newrev == oldrev ? :graded : :ungraded
       end
       nil
     end
@@ -63,7 +63,8 @@ module KGrader
     def commit
       # TODO:
       # if status == :graded && File.exists? pendingfile
-      #   [copy gradefile to repo and commit]
+      #   [copy gradefile to repo]
+      #   @course.backend.commit repo, <message>, <gradefile path>
       #   FileUtils.rm pendingfile
       # end
 
@@ -93,7 +94,15 @@ module KGrader
     end
 
     def rewind(date)
-      # TODO
+      log = @course.backend.log repo
+      target = log.find { |commit| commit[:date] <= date }
+      if target.nil?
+        raise SubmissionError, "no commits before due date: #{student}"
+      end
+
+      rev = target[:rev]
+      @course.backend.update repo, rev
+      rev
     end
   end
 end
