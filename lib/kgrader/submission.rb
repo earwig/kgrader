@@ -50,8 +50,10 @@ module KGrader
     def grade
       # TODO:
       # self.status = :ungraded
+      stage
       # [grade the stuff]
       # [save report to gradefile]
+      # @fs.reset_jail
       # FileUtils.touch pendingfile
       # self.status = :graded
       # return grade summary string
@@ -103,6 +105,20 @@ module KGrader
       rev = target[:rev]
       @course.backend.update repo, rev
       rev
+    end
+
+    def stage
+      @fs.reset_jail
+      FileUtils.mkdir_p @fs.jail
+
+      # puts
+      # @assignment.manifest[:provided].each { |fn| p fn }
+      # abort
+
+      # p @assignment.manifest[:provided], @assignment.manifest[:graded], @assignment.manifest[:report]
+
+      # copytree files matching manifest from student submission
+      # use assignment.stage
     end
   end
 end

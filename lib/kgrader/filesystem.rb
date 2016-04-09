@@ -31,7 +31,11 @@ module KGrader
     end
 
     def assignment(courseid, name)
-      File.join course(courseid), name, '_config.yml'
+      File.join course(courseid), name
+    end
+
+    def assignment_config(courseid, name)
+      File.join assignment(courseid, name), '_config.yml'
     end
 
     def roster(courseid, semester)
@@ -49,7 +53,7 @@ module KGrader
     end
 
     def assignments(courseid)
-      Dir[assignment courseid, '*'].map! { |fn| File.basename File.dirname fn }
+      Dir[File.join course(courseid), '*', ''].map! { |fn| File.basename fn }
     end
 
     def semesters(courseid)
@@ -73,6 +77,21 @@ module KGrader
       end
     rescue SystemCallError  # Errno::ENOENT, etc.
       raise FilesystemError, "can't read file: #{path}"
+    end
+
+    def reset_jail
+      FileUtils.rm_rf jail
+    end
+
+    def reset_desk
+      FileUtils.rm_rf Dir[File.join desk, '*', '']
+    end
+
+    def clean_desk
+      Dir[File.join desk, '*', '*', '*', '*', 'status.txt'].each do |fn|
+        File.write fn, "ungraded" if File.read(fn) == "graded"
+      end
+      FileUtils.rm_rf Dir[File.join desk, '*', '*', '*', '*', 'pending']
     end
   end
 end

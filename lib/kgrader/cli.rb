@@ -37,8 +37,8 @@ module KGrader
     end
 
     def clean
-      clear_jail
-      clean_desk
+      @fs.reset_jail
+      @fs.clean_desk
     end
 
     def clobber
@@ -46,8 +46,8 @@ module KGrader
       print "are you sure? [y/N] "
       abort "aborted" unless ['y', 'yes'].include? STDIN.gets.strip.downcase
 
-      clear_jail
-      clear_desk
+      @fs.reset_jail
+      @fs.reset_desk
     end
 
     private
@@ -64,21 +64,6 @@ module KGrader
       course.assignments.each do |assignment|
         puts "#{pad}  - #{assignment.name}"
       end
-    end
-
-    def clear_jail
-      FileUtils.rm_rf @fs.jail
-    end
-
-    def clear_desk
-      FileUtils.rm_rf Dir[File.join @fs.desk, '*', '']
-    end
-
-    def clean_desk
-      Dir[File.join @fs.desk, '*', '*', '*', '*', 'status.txt'].each do |fn|
-        File.write fn, "ungraded" if File.read(fn) == "graded"
-      end
-      FileUtils.rm_rf Dir[File.join @fs.desk, '*', '*', '*', '*', 'pending']
     end
   end
 end
