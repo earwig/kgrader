@@ -37,7 +37,7 @@ module KGrader
     end
 
     def clean
-      @fs.reset_jail
+      @fs.jail.reset
       @fs.clean_desk
     end
 
@@ -46,7 +46,7 @@ module KGrader
       print "are you sure? [y/N] "
       abort "aborted" unless ['y', 'yes'].include? STDIN.gets.strip.downcase
 
-      @fs.reset_jail
+      @fs.jail.reset
       @fs.reset_desk
     end
 

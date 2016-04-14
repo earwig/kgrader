@@ -53,7 +53,7 @@ module KGrader
       stage
       # [grade the stuff]
       # [save report to gradefile]
-      # @fs.reset_jail
+      # @fs.jail.reset
       # FileUtils.touch pendingfile
       # self.status = :graded
       # return grade summary string
@@ -108,17 +108,15 @@ module KGrader
     end
 
     def stage
-      @fs.reset_jail
-      FileUtils.mkdir_p @fs.jail
+      @fs.jail.reset
+      @fs.jail.init
 
-      # puts
-      # @assignment.manifest[:provided].each { |fn| p fn }
-      # abort
-
-      # p @assignment.manifest[:provided], @assignment.manifest[:graded], @assignment.manifest[:report]
-
-      # copytree files matching manifest from student submission
-      # use assignment.stage
+      @assignment.manifest[:provided].each do |entry|
+        @fs.jail.stage entry[:path], entry[:name]
+      end
+      @assignment.manifest[:graded].each do |entry|
+        @fs.jail.stage File.join(repo, entry[:name]), entry[:name]
+      end
     end
   end
 end

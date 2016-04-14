@@ -8,22 +8,8 @@ module KGrader
       @root = root
     end
 
-    def desk
-      File.join @root, 'desk'
-    end
-
-    def jail
-      File.join @root, 'jail'
-    end
-
-    def spec
-      File.join @root, 'spec'
-    end
-
-    # -------------------------------------------------------------------------
-
     def course(name)
-      File.join spec, name
+      File.join spec_dir, name
     end
 
     def course_config(name)
@@ -39,17 +25,17 @@ module KGrader
     end
 
     def roster(courseid, semester)
-      File.join desk, courseid, semester, '_roster.csv'
+      File.join desk_dir, courseid, semester, '_roster.csv'
     end
 
     def submission(courseid, semester, assignment, student)
-      File.join desk, courseid, semester, assignment, student
+      File.join desk_dir, courseid, semester, assignment, student
     end
 
     # -------------------------------------------------------------------------
 
     def courses
-      Dir[File.join spec, '*', ''].map! { |fn| File.basename fn }
+      Dir[File.join spec_dir, '*', ''].map! { |fn| File.basename fn }
     end
 
     def assignments(courseid)
@@ -79,19 +65,34 @@ module KGrader
       raise FilesystemError, "can't read file: #{path}"
     end
 
-    def reset_jail
-      FileUtils.rm_rf jail
+    def jail
+      @jail ||= Jail.new jail_dir
     end
 
     def reset_desk
-      FileUtils.rm_rf Dir[File.join desk, '*', '']
+      FileUtils.rm_rf Dir[File.join desk_dir, '*', '']
     end
 
     def clean_desk
-      Dir[File.join desk, '*', '*', '*', '*', 'status.txt'].each do |fn|
+      Dir[File.join desk_dir, '*', '*', '*', '*', 'status.txt'].each do |fn|
         File.write fn, "ungraded" if File.read(fn) == "graded"
       end
-      FileUtils.rm_rf Dir[File.join desk, '*', '*', '*', '*', 'pending']
+      FileUtils.rm_rf Dir[File.join desk_dir, '*', '*', '*', '*', 'pending']
+    end
+
+    # -------------------------------------------------------------------------
+
+    private
+    def desk_dir
+      File.join @root, 'desk'
+    end
+
+    def jail_dir
+      File.join @root, 'jail'
+    end
+
+    def spec_dir
+      File.join @root, 'spec'
     end
   end
 end

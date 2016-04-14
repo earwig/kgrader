@@ -24,12 +24,14 @@ module KGrader
       end
 
       manifest = @config['manifest']
-      provided = manifest['provided'].map do |glob|
-        Dir[File.join @root, 'provided', glob]
-      end.flatten
+      provided = manifest['provided'].map do |fn|
+        { :name => fn, :path => File.join(@root, 'provided', fn) }
+      end
+      graded = manifest['graded'].map { |fn| { :name => fn } }
+
       {
         :provided => provided,
-        :graded => manifest['graded'],
+        :graded => graded,
         :report => manifest['report']
       }
     end
