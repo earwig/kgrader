@@ -77,7 +77,8 @@ module KGrader
       Dir[File.join desk_dir, '*', '*', '*', '*', 'status.txt'].each do |fn|
         File.write fn, "ungraded" if File.read(fn) == "graded"
       end
-      FileUtils.rm_rf Dir[File.join desk_dir, '*', '*', '*', '*', 'pending']
+      FileUtils.rm_f Dir[File.join desk_dir, '*', '*', '*', '*', 'pending']
+      FileUtils.rm_f Dir[File.join desk_dir, '*', '*', '*', '*', '*.log']
     end
 
     # -------------------------------------------------------------------------

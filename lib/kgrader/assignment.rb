@@ -25,7 +25,9 @@ module KGrader
     end
 
     def tests
-      @config['grade']
+      @tests ||= @config['grade'].map do |it|
+        { :name => it.keys.first, :max => it.values.first }
+      end
     end
 
     def report
@@ -33,10 +35,14 @@ module KGrader
     end
 
     def commit_message(student)
-      default = "adding grade report for #{name}: {student}"
-      template = @config['commit']['message'].clone || default
+      default = "Adding grade report for #{title}: {student}"
+      template = (@config['commit']['message'] || default).clone
       template['{student}'] = student
       template
+    end
+
+    def extra_comments
+      @config['commit']['comments'] || []
     end
 
     private
@@ -58,6 +64,10 @@ module KGrader
       graded = stage['graded'].map { |fn| { :name => fn } }
 
       { :provided => provided, :graded => graded }
+    end
+
+    def title
+      @config['title'] || @name
     end
   end
 end

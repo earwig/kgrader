@@ -17,13 +17,16 @@ module KGrader
       FileUtils.cp source, File.join(@root, target)
     end
 
-    def exec(command)
+    def exec(command, logpath)
       pid = Process.fork do
+        fp = File.open(logpath, 'w+')
         Dir.chdir @root
         # TODO: rlimit in exec, umask?
-        Process.exec command
+        Process.exec command, :in => :close, :out => fp, :err => fp,
+          :close_others => true
       end
       Process.waitpid pid, 0
+      $?.exited? && $?.exitstatus == 0
     end
   end
 end
