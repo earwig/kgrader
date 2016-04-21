@@ -38,6 +38,11 @@ module KGrader::Backend
       # TODO
     end
 
+    def commit_date(repo)
+      xml = Nokogiri::XML run('log', '--xml', '-l', '1', repo).first
+      Time.parse xml.css('logentry date').text
+    end
+
     private
     def run(*cmd)
       Open3.capture2e('svn', *cmd)

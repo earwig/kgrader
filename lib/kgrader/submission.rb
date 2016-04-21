@@ -1,6 +1,7 @@
 module KGrader
   class Submission
     attr_reader :course, :semester, :assignment, :student
+    MAX_COLS = 79
 
     def initialize(filesystem, course, semester, assignment, student)
       @fs         = filesystem
@@ -164,9 +165,37 @@ module KGrader
     end
 
     def generate_report
-      # TODO
-      @tests
-      @assignment.extra_comments
+      header = "#{assignment.title} Grade Report for #{student}"
+      header = header.center(MAX_COLS).rstrip
+      hr1 = '-' * MAX_COLS
+      hr2 = '=' * MAX_COLS
+
+      metadata = [
+        "commit revision: #{revision}",
+        "commit date:     #{format_time @course.backend.commit_date(repo)}",
+        "grade date:      #{format_time Time.now}"
+      ]
+      version = KGrader.version
+      metadata.push "grader version:  #{version}" if version
+      metadata = metadata.join("\n")
+
+      tests = "tests:\n" + @tests.map do |test|
+        score = format_points(test[:score], test[:max], max_score)
+        justify_both "    - #{test[:name]}", score
+      end.join("\n")
+
+      total = justify_both "total:", format_points(score, max_score)
+
+      all_comments = (@comments + @assignment.extra_comments)
+      if all_comments
+        comments = "comments:\n" + all_comments.map do |cmt|
+          "    - #{cmt}\n"
+        end.join
+      else
+        comments = ""
+      end
+
+      [header, hr2, metadata, hr1, tests, hr1, total, hr1, comments].join "\n"
     end
 
     def generate_summary
@@ -184,14 +213,22 @@ module KGrader
       @tests.reduce(0) { |sum, t| sum + t[:max] }
     end
 
-    def format_points(score, max)
+    def format_points(score, max, span_max = nil)
       percent = (score.to_f * 100 / max).round.to_s.rjust 3
-      span = get_span max
+      span = get_span(span_max || max)
       "#{percent}% (#{score.to_s.rjust span}/#{max.to_s.rjust span})"
+    end
+
+    def justify_both left, right
+      "#{left}#{right.rjust MAX_COLS - left.length}"
     end
 
     def get_span(max)
       (Math.log10(max) + 1).to_i
+    end
+
+    def format_time(time)
+      time.localtime.strftime "%H:%M, %b %d, %Y %Z"
     end
   end
 end

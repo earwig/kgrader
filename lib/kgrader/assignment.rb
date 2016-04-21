@@ -20,6 +20,10 @@ module KGrader
       @config['id'] || @name
     end
 
+    def title
+      @config['title'] || @name
+    end
+
     def build_steps
       @config['build']
     end
@@ -64,10 +68,6 @@ module KGrader
       graded = stage['graded'].map { |fn| { :name => fn } }
 
       { :provided => provided, :graded => graded }
-    end
-
-    def title
-      @config['title'] || @name
     end
   end
 end

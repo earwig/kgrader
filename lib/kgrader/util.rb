@@ -1,6 +1,12 @@
+require 'open3'
 require 'time'
 
 module KGrader
+  def self.version
+    git = Open3.capture2e('git', 'rev-parse', '--short', 'HEAD')
+    return git[0].strip if git[1].exited? && git[1].exitstatus == 0
+  end
+
   def self.parse_args(raw, range, keywords)
     args = []
     options = {}
