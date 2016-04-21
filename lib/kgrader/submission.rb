@@ -48,30 +48,24 @@ module KGrader
     end
 
     def grade
-      # TODO:
-      # self.status = :ungraded
+      self.status = :ungraded
       stage
-      # [grade the stuff]
-      # [save report to gradefile]
-      # @fs.jail.reset
-      # FileUtils.touch pendingfile
-      # self.status = :graded
-      # return grade summary string
-
-      sleep rand / 2
-      '100%'
+      build
+      test
+      save
+      # self.status = :graded  # UNCOMMENT
+      # @fs.jail.reset         # UNCOMMENT
+      # TODO: return grade summary string
     end
 
     def commit
-      # TODO:
-      # if status == :graded && File.exists? pendingfile
-      #   [copy gradefile to repo]
-      #   @course.backend.commit repo, <message>, <gradefile path>
-      #   FileUtils.rm pendingfile
-      # end
-
-      sleep rand / 2
-      nil
+      if status == :graded && File.exists?(pendingfile)
+        target = File.join(repo, @assignment.report)
+        message = @assignment.commit_message @student
+        FileUtils.cp gradefile, target
+        @course.backend.commit repo, message, target
+        FileUtils.rm pendingfile
+      end
     end
 
     private
@@ -117,6 +111,23 @@ module KGrader
       @assignment.manifest[:graded].each do |entry|
         @fs.jail.stage File.join(repo, entry[:name]), entry[:name]
       end
+    end
+
+    def build
+      @assignment.build_steps.each do |command|
+        @fs.jail.exec command
+      end
+    end
+
+    def test
+      @assignment.tests.each do |script|
+        # TODO: execute script in jail
+      end
+    end
+
+    def save
+      # TODO: save gradefile
+      FileUtils.touch pendingfile
     end
   end
 end
