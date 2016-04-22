@@ -65,10 +65,16 @@ module KGrader::Backend
     private
     def run(*cmd)
       if @password
-        cmd.unshift @password
-        cmd.unshift '--password'
+        temp = '.svn_temp_' + rand(1000000000).to_s
+        begin
+          File.write temp, @password
+          Open3.capture2e("cat #{temp} | xargs svn #{cmd.join ' '} --password")
+        ensure
+          File.unlink temp
+        end
+      else
+        Open3.capture2e('svn', *cmd)
       end
-      Open3.capture2e('svn', *cmd)
     end
 
     def get_url(semester, assignment, student)
