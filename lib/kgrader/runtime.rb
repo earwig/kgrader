@@ -1,3 +1,4 @@
+require 'fileutils'
 require 'timeout'
 
 module KGrader
@@ -5,7 +6,7 @@ module KGrader
     MAX_COLS = 79
 
     def testcase(options)
-      puts " running test: #{$0} ".center MAX_COLS, '='
+      puts " running test: #{File.basename $0} ".center MAX_COLS, '='
       begin
         Timeout::timeout options[:alarm] { yield }
       rescue Timeout::Error
