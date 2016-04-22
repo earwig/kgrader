@@ -33,5 +33,9 @@ module KGrader
     def shake
       ARGV[0]
     end
+
+    def getpath(filename)
+      File.join File.dirname($0), filename
+    end
   end
 end

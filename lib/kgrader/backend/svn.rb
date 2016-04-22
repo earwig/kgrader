@@ -22,7 +22,8 @@ module KGrader::Backend
       unless test_okay url
         print "svn: password: "
         @password = STDIN.noecho(&:gets).chomp
-        print "svn: bad password or other network issues" unless test_okay url
+        puts
+        puts "svn: bad password or other network issues" unless test_okay url
       end
     end
 
