@@ -62,8 +62,8 @@ module KGrader::Backend
     private
     def run(*cmd)
       if @password
-        cmd.unshift '--password'
         cmd.unshift @password
+        cmd.unshift '--password'
       end
       Open3.capture2e('svn', *cmd)
     end
