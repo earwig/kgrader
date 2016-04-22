@@ -1,3 +1,4 @@
+require 'io/console'
 require 'nokogiri'
 require 'open3'
 
@@ -8,6 +9,21 @@ module KGrader::Backend
       @fs = filesystem
       @course = course
       @config = config
+      @password = nil
+    end
+
+    def prepare(semester, assignment)
+      return unless @config['verify']
+      url = @config['verify'] % {
+        :semester => semester,
+        :assignment => assignment
+      }
+
+      status = run('list', '--non-interactive', url)[1]
+      if status.exited? && status.exitstatus != 0
+        print "svn: password: "
+        @password = STDIN.noecho(&:gets).chomp
+      end
     end
 
     def revision(repo)
@@ -46,6 +62,10 @@ module KGrader::Backend
 
     private
     def run(*cmd)
+      if @password
+        cmd.unshift '--password'
+        cmd.unshift @password
+      end
       Open3.capture2e('svn', *cmd)
     end
 

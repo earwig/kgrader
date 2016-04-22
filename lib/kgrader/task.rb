@@ -20,6 +20,7 @@ module KGrader
         raise TaskError, "can't set a new due date without fetching"
       end
 
+      prepare
       subtask 'setup' do |sub|
         sub.create unless sub.exists?
       end
@@ -42,6 +43,7 @@ module KGrader
     end
 
     def commit
+      prepare
       subtask 'commit', &:commit
     end
 
@@ -56,6 +58,10 @@ module KGrader
 
     def student_len
       @student_len ||= @submissions.map { |sub| sub.student.length }.max
+    end
+
+    def prepare
+      @course.backend.prepare @semester, @assignment
     end
 
     def subtask(name)
