@@ -51,8 +51,10 @@ module KGrader::Backend
       end
     end
 
-    def commit(repo, message, paths = nil)
-      run 'commit', '-m', message, *paths.map { |fn| File.join repo, fn }
+    def commit(repo, message, *paths)
+      fullpaths = *paths.map { |fn| File.join repo, fn }
+      run 'add' fullpaths
+      run 'commit', '-m', message, fullpaths
     end
 
     def commit_date(repo)

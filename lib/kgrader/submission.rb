@@ -65,6 +65,7 @@ module KGrader
         @course.backend.commit repo, message, @assignment.report
         FileUtils.rm pendingfile
       end
+      nil
     end
 
     private
