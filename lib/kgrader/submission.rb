@@ -150,8 +150,8 @@ module KGrader
     end
 
     def grade_post
-      # self.status = :graded  # TODO: uncomment
-      # @fs.jail.reset  # TODO: uncomment
+      self.status = :graded
+      @fs.jail.reset
       @summary = generate_summary unless @summary
     end
 

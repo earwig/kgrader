@@ -22,6 +22,7 @@ module KGrader
     def grade(score)
       IO.new(3).write score
       puts " done ".center MAX_COLS, '-'
+      puts
       exit
     end
 
