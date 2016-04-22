@@ -14,10 +14,15 @@ module KGrader::Backend
 
     def prepare(semester, assignment)
       return unless @config['verify']
-      unless test_okay
+      url = @config['verify'] % {
+        :semester => semester,
+        :assignment => assignment
+      }
+
+      unless test_okay url
         print "svn: password: "
         @password = STDIN.noecho(&:gets).chomp
-        print "svn: bad password or other network issues" unless test_okay
+        print "svn: bad password or other network issues" unless test_okay url
       end
     end
 
@@ -71,11 +76,7 @@ module KGrader::Backend
       }
     end
 
-    def test_okay
-      url = @config['verify'] % {
-        :semester => semester,
-        :assignment => assignment
-      }
+    def test_okay(url)
       status = run('list', '--non-interactive', url)[1]
       status.exited? && status.exitstatus == 0
     end
