@@ -52,7 +52,7 @@ module KGrader
         Dir.chdir @root
         options = {
           :in => :close, :out => fp, :err => fp, :close_others => true,
-          :rlimit_nproc => 32
+          :rlimit_nproc => 64
         }
         yield options if block_given?
         Process.exec *command, options

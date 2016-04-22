@@ -15,7 +15,6 @@ module KGrader
         grade 0
       end
 
-      puts "no grade received?"
       comment "autograde error (no grade reported); please contact staff"
       grade 0
     end
@@ -27,6 +26,7 @@ module KGrader
     end
 
     def comment(text)
+      puts "comment: #{text}"
       IO.new(4).write text + "\n"
     end
 
