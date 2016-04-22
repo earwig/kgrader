@@ -53,7 +53,7 @@ module KGrader::Backend
 
     def commit(repo, message, *paths)
       fullpaths = *paths.map { |fn| File.join repo, fn }
-      run 'add' fullpaths
+      run 'add', fullpaths
       run 'commit', '-m', message, fullpaths
     end
 
