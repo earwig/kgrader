@@ -30,7 +30,8 @@ module KGrader
 
     def tests
       @tests ||= @config['grade'].map do |it|
-        { :name => it.keys.first, :max => it.values.first }
+        script = File.join @root, it.keys.first + ".rb"
+        { :name => it.keys.first, :script => script, :max => it.values.first }
       end
     end
 

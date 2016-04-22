@@ -60,10 +60,9 @@ module KGrader
 
     def commit
       if status == :graded && File.exists?(pendingfile)
-        target = File.join(repo, @assignment.report)
         message = @assignment.commit_message @student
-        FileUtils.cp gradefile, target
-        @course.backend.commit repo, message, target
+        FileUtils.cp gradefile, File.join(repo, @assignment.report)
+        @course.backend.commit repo, message, @assignment.report
         FileUtils.rm pendingfile
       end
     end
@@ -113,16 +112,12 @@ module KGrader
       @failure = false
       @comments = []
       @summary = nil
-      @tests = []
+      @tests = @assignment.tests.clone.each { |test| test[:score] = 0 }
 
       self.status = :ungraded
       FileUtils.rm_f [buildlog, testlog]
       @fs.jail.reset
       @fs.jail.init
-
-      @assignment.tests.each do |test|
-        @tests.push({ :name => test[:name], :max => test[:max], :score => 0 })
-      end
     end
 
     def stage
@@ -142,8 +137,10 @@ module KGrader
 
     def test
       return if @failure
-      @assignment.tests.each do |test|
-        # TODO: execute script in jail and update @test/@comments; out testlog
+      @tests.each do |test|
+        test[:score] = @fs.jail.run_test test[:script], testlog do |comment|
+          @comments.push "#{test[:name]}: #{comment}"
+        end
       end
     end
 
@@ -199,7 +196,7 @@ module KGrader
     end
 
     def generate_summary
-      tests = @tests.each do |test|
+      tests = @tests.map do |test|
         "#{test[:score].to_s.rjust get_span(test[:max])}/#{test[:max]}"
       end.join ', '
       "#{format_points score, max_score}: #{tests}"

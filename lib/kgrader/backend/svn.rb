@@ -36,6 +36,7 @@ module KGrader::Backend
 
     def commit(repo, message, paths = nil)
       # TODO
+      # run 'commit', '-m', message, *paths.map { |fn| File.join repo, fn }
     end
 
     def commit_date(repo)
