@@ -12,7 +12,7 @@ module KGrader
 
     def init
       FileUtils.mkdir_p @root
-      @salt = rand 100000000
+      @salt = rand(100000000).to_s
     end
 
     def stage(source, target)
