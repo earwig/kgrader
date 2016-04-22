@@ -7,17 +7,22 @@ module KGrader
 
     def testcase(options)
       puts " running test: #{File.basename $0} ".center MAX_COLS, '='
+
       begin
         Timeout::timeout options[:alarm] { yield }
       rescue Timeout::Error
         comment "timeout"
         grade 0
       end
-      puts " done ".center MAX_COLS, '-'
+
+      puts "no grade received?"
+      comment "autograde error (no grade reported); please contact staff"
+      grade 0
     end
 
     def grade(score)
       IO.new(3).write score
+      puts " done ".center MAX_COLS, '-'
       exit
     end
 
