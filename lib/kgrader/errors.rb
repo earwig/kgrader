@@ -25,4 +25,10 @@ module KGrader
 
   class SubmissionError < KGraderError
   end
+
+  class BackendError < KGraderError
+  end
+
+  class SVNError < BackendError
+  end
 end

@@ -35,7 +35,9 @@ module KGrader
     # -------------------------------------------------------------------------
 
     def courses
-      Dir[File.join spec_dir, '*', ''].map! { |fn| File.basename fn }
+      Dir[File.join spec_dir, '*', '_config.yml'].map! do |fn|
+        File.basename File.dirname fn
+      end
     end
 
     def assignments(courseid)
