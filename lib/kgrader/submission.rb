@@ -48,8 +48,8 @@ module KGrader
       nil
     end
 
-    def grade
-      grade_prep
+    def grade(superscore = false)
+      grade_prep superscore
       stage
       build
       test
@@ -61,12 +61,14 @@ module KGrader
     def commit
       if status == :graded && File.exists?(pendingfile)
         message = @assignment.commit_message @student
-        FileUtils.cp gradefile, File.join(repo, @assignment.report)
+        FileUtils.cp gradereport, File.join(repo, @assignment.report)
         @course.backend.commit repo, message, @assignment.report
         FileUtils.rm pendingfile
       end
       nil
     end
+
+    # -------------------------------------------------------------------------
 
     private
     def repo
@@ -78,6 +80,10 @@ module KGrader
     end
 
     def gradefile
+      File.join @root, 'grade.json'
+    end
+
+    def gradereport
       File.join @root, 'grade.txt'
     end
 
@@ -109,19 +115,32 @@ module KGrader
       rev
     end
 
-    def grade_prep
-      @failure = false
-      @comments = []
+    # -------------------------------------------------------------------------
+
+    def grade_prep(superscore)
+      @done = false
+      @failed = false
+      @changed = !superscore || self.status == :ungraded
       @summary = nil
-      @tests = @assignment.tests.clone.each { |test| test[:score] = 0 }
+      @tests = @assignment.tests.clone.each do |test|
+        test[:score] = 0
+        test[:comments] = []
+      end
+      load_gradefile if superscore
+
+      if superscore && @tests.all? { |test| test[:score] == test[:max] }
+        @done = true
+        return
+      end
 
       self.status = :ungraded
-      FileUtils.rm_f [buildlog, testlog]
+      archive_logs superscore
       @fs.jail.reset
       @fs.jail.init
     end
 
     def stage
+      return if @done
       @assignment.manifest[:provided].each do |entry|
         @fs.jail.stage entry[:path], entry[:name]
       end
@@ -131,35 +150,86 @@ module KGrader
     end
 
     def build
+      return if @done
       @assignment.build_steps.each do |command|
         return build_failure unless @fs.jail.exec command, buildlog
       end
     end
 
     def test
-      return if @failure
-      @tests.each do |test|
-        test[:score] = @fs.jail.run_test test[:script], testlog do |comment|
-          @comments.push "#{test[:name]}: #{comment}"
-        end
-      end
+      return if @done
+      @tests.each { |test| run_test test }
     end
 
     def save
-      File.write gradefile, generate_report
-      FileUtils.touch pendingfile
+      if @changed
+        File.write gradefile, generate_gradefile
+        File.write gradereport, generate_report
+        FileUtils.touch pendingfile
+      end
     end
 
     def grade_post
       self.status = :graded
       @fs.jail.reset
-      @summary = generate_summary unless @summary
+      @summary = generate_summary
+    end
+
+    # -------------------------------------------------------------------------
+
+    def archive_logs(superscore)
+      logs = [buildlog, testlog]
+      if superscore
+        logs.select { |log| File.exists? log }.each do |log|
+          File.rename log, "#{log}.#{Time.now.strftime('%Y%m%d%H%M%S')}"
+        end
+      else
+        FileUtils.rm_f logs
+      end
     end
 
     def build_failure
-      @failure = true
-      @comments.push "failed to compile"
-      @summary = "#{format_points 0, max_score}: failed to compile"
+      @done = true
+      @failed = true
+    end
+
+    def run_test(test)
+      return if test[:score] == text[:max]  # Can't superscore the max score
+
+      test[:depends].each do |depname|
+        dep = @tests.find { |t| t[:name] == depname }
+        if !dep.nil? && dep[:score] == 0
+          test[:comments] = [test[:depfail]]
+          return
+        end
+      end
+
+      score, comments = @fs.jail.run_test test[:script], testlog
+      if score > test[:score]
+        test[:score] = score
+        test[:comments] = comments
+        @changed = true
+      end
+    end
+
+    def load_gradefile
+      begin
+        data = @fs.load gradefile
+      rescue FilesystemError
+        return
+      end
+      data.each do |name, fields|
+        test = @tests.find { |t| t[:name] == name }
+        test[:score], test[:comments] = fields
+      end
+    end
+
+    def generate_gradefile
+      data = @tests.inject({}) do |hash, test|
+        hash[test[:name]] = [test[:score], test[:comments]]
+        hash
+      end
+      JSON.generate data
     end
 
     def generate_report
@@ -175,7 +245,7 @@ module KGrader
       ]
       version = KGrader.version
       metadata.push "grader version:  #{version}" if version
-      metadata = metadata.join("\n")
+      metadata = metadata.join "\n"
 
       tests = "tests:\n" + @tests.map do |test|
         score = format_points(test[:score], test[:max], max_score)
@@ -183,24 +253,22 @@ module KGrader
       end.join("\n")
 
       total = justify_both "total:", format_points(score, max_score)
-
-      all_comments = (@comments + @assignment.extra_comments)
-      if all_comments
-        comments = "comments:\n" + all_comments.map do |cmt|
-          "    - #{cmt}\n"
-        end.join
-      else
-        comments = ""
-      end
+      comments = generate_comments
 
       [header, hr2, metadata, hr1, tests, hr1, total, hr1, comments].join "\n"
     end
 
     def generate_summary
-      tests = @tests.map do |test|
-        "#{test[:score].to_s.rjust get_span(test[:max])}/#{test[:max]}"
-      end.join ', '
-      "#{format_points score, max_score}: #{tests}"
+      if !@changed
+        line = "no change"
+      elsif @failed
+        line = "failed to compile"
+      else
+        line = @tests.map do |test|
+          "#{test[:score].to_s.rjust get_span(test[:max])}/#{test[:max]}"
+        end.join ', '
+      end
+      "#{format_points score, max_score}: #{line}"
     end
 
     def score
@@ -209,6 +277,18 @@ module KGrader
 
     def max_score
       @tests.reduce(0) { |sum, t| sum + t[:max] }
+    end
+
+    def generate_comments
+      comments = []
+      comments.push "failed to compile" if @failed
+      @tests.each do |test|
+        test[:comments].each { |cmt| comments.push "#{test[:name]}: #{cmt}" }
+      end
+      comments.concat @assignment.extra_comments
+
+      return "" if comments.empty?
+      "comments:\n" + comments.map { |cmt| "    - #{cmt}\n" }.join
     end
 
     def format_points(score, max, span_max = nil)

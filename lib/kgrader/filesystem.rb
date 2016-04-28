@@ -80,7 +80,7 @@ module KGrader
         File.write fn, "ungraded" if File.read(fn) == "graded"
       end
       FileUtils.rm_f Dir[File.join desk_dir, '*', '*', '*', '*', 'pending']
-      FileUtils.rm_f Dir[File.join desk_dir, '*', '*', '*', '*', '*.log']
+      FileUtils.rm_f Dir[File.join desk_dir, '*', '*', '*', '*', '*.log*']
     end
 
     # -------------------------------------------------------------------------

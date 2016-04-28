@@ -95,5 +95,10 @@ repo has changed since the last run. To forcibly regrade:
 
     rake grade cs123 mp1 regrade=yes
 
+You can enable superscoring as well, which will re-run tests that a student
+failed in an attempt to see if they can get a higher grade:
+
+    rake grade cs123 mp1 superscore=yes
+
 You can combine these arguments in any meaningful way. `semester` and
 `students` are also available options for `commit`.

@@ -15,9 +15,13 @@ module KGrader
       due = options.fetch(:due, Time.now)
       fetch = options.fetch(:fetch, true)
       regrade = options.fetch(:regrade, false)
+      superscore = options.fetch(:superscore, false)
 
       if options.include?(:due) && !fetch
         raise TaskError, "can't set a new due date without fetching"
+      end
+      if regrade && superscore
+        raise TaskError, "can't regrade and superscore at the same time"
       end
 
       prepare
@@ -34,10 +38,10 @@ module KGrader
       subtask 'grade' do |sub|
         if sub.status == :init || sub.status == :fetching
           next 'skip (need to fetch first)'
-        elsif sub.status == :graded && !regrade
+        elsif sub.status == :graded && !regrade && !superscore
           next
         else
-          sub.grade
+          sub.grade superscore
         end
       end
     end

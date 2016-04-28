@@ -26,6 +26,7 @@ task :help do
 - rake roster <course> <rosterfile> [<semester>]
 - rake grade  <course> <assignment> [semester=<...>] [students=<...>]
               [due=<...>] [fetch=<yes/no>] [regrade=<yes/no>]
+              [superscore=<yes/no>]
 - rake commit <course> <assignment> [semester=<...>] [students=<...>]
 - rake clean
 - rake clobber}
@@ -44,7 +45,7 @@ end
 task :grade do
   course, assignment, options = parse_args 2..2,
     { :semester => :string, :students => :array, :due => :time,
-      :fetch => :bool, :regrade => :bool }
+      :fetch => :bool, :regrade => :bool, :superscore => :bool }
   semester, students = options[:semester], options[:students]
   run { |cli| cli.grade course, semester, assignment, students, options }
 end

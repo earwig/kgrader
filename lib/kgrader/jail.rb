@@ -39,10 +39,10 @@ module KGrader
       [grade_wr, cmt_wr].each &:close
       Process.waitpid pid, 0
 
-      cmt_rd.read.split("\n").each { |cmt| yield cmt } if block_given?
       grade = grade_rd.read.strip.to_i
+      comments = cmt_rd.read.split("\n")
       [grade_rd, cmt_rd].each &:close
-      grade
+      return grade, comments
     end
 
     private

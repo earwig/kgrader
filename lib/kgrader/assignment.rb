@@ -30,8 +30,13 @@ module KGrader
 
     def tests
       @tests ||= @config['grade'].map do |it|
-        script = File.join @root, it.keys.first + ".rb"
-        { :name => it.keys.first, :script => script, :max => it.values.first }
+        name = it.keys.first
+        opts = it.values.first
+        script = File.join @root, name + '.rb'
+        depends = *opts['depends'] || []
+        depfail = opts['depfail'] || "depends on #{name}"
+        { :name => name, :script => script, :max => opts['points'],
+          :depends => depends, :depfail => depfail }
       end
     end
 
@@ -47,7 +52,8 @@ module KGrader
     end
 
     def extra_comments
-      @config['commit']['comments'] || []
+      conf = @config['commit']
+      return *conf['comments'] || conf['comment'] || []
     end
 
     private
