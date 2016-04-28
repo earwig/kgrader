@@ -24,7 +24,7 @@ module KGrader::Backend
         @password = STDIN.noecho(&:gets).chomp
         puts
         unless test_okay url
-          raise SVNError, "bad password or other network issues"
+          raise KGrader::SVNError, "bad password or other network issues"
         end
       end
     end
