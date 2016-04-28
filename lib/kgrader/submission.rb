@@ -194,7 +194,7 @@ module KGrader
     end
 
     def run_test(test)
-      return if test[:score] == text[:max]  # Can't superscore the max score
+      return if test[:score] == test[:max]  # Can't superscore the max score
 
       test[:depends].each do |depname|
         dep = @tests.find { |t| t[:name] == depname }
