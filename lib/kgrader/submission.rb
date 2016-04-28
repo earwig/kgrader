@@ -120,7 +120,8 @@ module KGrader
     def grade_prep(superscore)
       @done = false
       @failed = false
-      @changed = !superscore || self.status == :ungraded
+      @fresh = self.status == :ungraded
+      @changed = !superscore || @fresh
       @summary = nil
       @tests = @assignment.tests.clone.each do |test|
         test[:score] = 0
@@ -205,7 +206,7 @@ module KGrader
       end
 
       score, comments = @fs.jail.run_test test[:script], testlog
-      if score > test[:score]
+      if score > test[:score] || (score == test[:score] && @fresh)
         test[:score] = score
         test[:comments] = comments
         @changed = true
