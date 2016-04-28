@@ -31,7 +31,7 @@ module KGrader
       IO.new(4).write text + "\n"
     end
 
-    def shake
+    def salt
       ARGV[0]
     end
 
