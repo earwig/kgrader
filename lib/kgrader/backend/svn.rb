@@ -1,6 +1,7 @@
 require 'io/console'
 require 'nokogiri'
 require 'open3'
+require 'shellwords'
 
 module KGrader::Backend
   class SVN
@@ -54,9 +55,10 @@ module KGrader::Backend
     end
 
     def commit(repo, message, *paths)
-      fullpaths = paths.map { |fn| File.join repo, fn }
-      run 'add', *fullpaths
-      run 'commit', '-m', message, *fullpaths
+      Dir.chdir(repo) do
+        run 'add', *paths
+        run 'commit', '-m', message, *paths
+      end
     end
 
     def commit_date(repo)
@@ -70,7 +72,7 @@ module KGrader::Backend
         temp = '.svn_temp_' + rand(1000000000).to_s
         begin
           File.write temp, @password
-          Open3.capture2e("cat #{temp} | xargs svn #{cmd.join ' '} --password")
+          Open3.capture2e("cat #{temp} | xargs svn #{cmd.shelljoin} --password")
         ensure
           File.unlink temp
         end
